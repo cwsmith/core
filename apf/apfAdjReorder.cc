@@ -59,6 +59,8 @@ namespace apf {
     if(dlt) delete shr;
     return dof;
   }
+
+  //FIXME this does not number elements
   int adjReorder(Numbering * num, Sharing * shr)
   {
     Field * field = getField(num);
@@ -147,12 +149,18 @@ namespace apf {
                   queue_set.find(*vit) == queue_set.end() &&
                   shr->isOwned(*vit) )
               {
-                ent_queue.push_back(*eit);
-                queue_set.insert(*eit);
+                ent_queue.push_back(*vit);
+                queue_set.insert(*vit);
               }
             }
           }
           MeshEntity* ov = getEdgeVertOppositeVert(mesh,e,ent);
+          //TODO the following does not appear to deal with edge dofs correctly
+          // - it should number the edge dofs if the other vertex is numbered or
+          //   in the queue to be numbered. otherwise, it should push the edge
+          //   dofs into the queue.
+          // - it appears to check if all the dofs of the other vertex are
+          //   numbered...
           bool owned = shr->isOwned(ov);
           if(owned)
           {
@@ -182,10 +190,10 @@ namespace apf {
                 ent_queue.push_back(ov);
                 queue_set.insert(ov);
               }
-            }
-          }
-        }
-      }
+            } //other vtx is not numbered
+          } // other vtx is owned
+        } // edge adj to vtx
+      } // is vtx
     }
     if(dlt) delete shr;
     return dofs;
