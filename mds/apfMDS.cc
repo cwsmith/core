@@ -860,15 +860,16 @@ Mesh2* createMdsMesh(gmi_model* model, Mesh* from, bool reorder, bool copy_data)
   Queue q;
   q.push(findFirst(from)); //TODO use geometric model info
 
-  // node and element number starts from 0 - TODO should count down
-  int labelnode = 0;
-  int labelelem = 0;
+  const int numVtx = from->count(0);
+  const int numElm = from->count(mesh_dim);
+  int labelnode = numVtx-1;
+  int labelelem = numElm-1;
 
   std::vector<MeshEntity*> node_arr;
   std::vector<MeshEntity*> elem_arr;
 
-  node_arr.resize(from->count(0)+1);
-  elem_arr.resize(from->count(mesh_dim)+1);
+  node_arr.resize(numVtx);
+  elem_arr.resize(numElm);
 
   MeshEntity* otherVtx;
   MeshEntity* edge;
@@ -882,7 +883,7 @@ Mesh2* createMdsMesh(gmi_model* model, Mesh* from, bool reorder, bool copy_data)
       node_arr[labelnode] = vtx;
       apf::number(nn, vtx, 0, 0, labelnode);
 
-      ++labelnode;
+      --labelnode;
     }
 
     std::vector<MeshEntity*> entities;
@@ -901,7 +902,7 @@ Mesh2* createMdsMesh(gmi_model* model, Mesh* from, bool reorder, bool copy_data)
         {
           elem_arr[labelelem] = elem;
           apf::number(en, elem, 0, 0, labelelem);
-          ++labelelem;
+          --labelelem;
         }
         //vertices adjacent to element
         apf::Downward verts;
