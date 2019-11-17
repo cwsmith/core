@@ -7,6 +7,7 @@
 #include <apf.h>
 #include <apfConvert.h>
 #include <apfMesh2.h>
+#include <apfShape.h>
 #include <apfNumbering.h>
 #include <ma.h>
 #include <pcu_util.h>
@@ -97,6 +98,8 @@ int main(int argc, char** argv)
   apf::printStats(mesh);
   mesh->verify();
   apf::writeVtkFiles(vtk_path, mesh);
+  mesh->changeShape(apf::getLagrange(1));
+  apf::writeVtkFiles("linear.vtk", mesh);
 
   mesh->destroyNative();
   apf::destroyMesh(mesh);
