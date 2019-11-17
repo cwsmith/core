@@ -105,6 +105,7 @@ endif()
 
 # Mesh improvement utilities
 util_exe_func(reorder reorder.cc)
+util_exe_func(reorderSlow reorderSlow.cc)
 util_exe_func(fixshape fixshape.cc)
 util_exe_func(fixlayer fixlayer.cc)
 util_exe_func(fixDisconnected fixDisconnected.cc)
