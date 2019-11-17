@@ -858,9 +858,9 @@ Mesh2* createMdsMesh(gmi_model* model, Mesh* from, bool reorder, bool copy_data)
   apf::Numbering* en = apf::createNumbering(from, "elem", getConstant(mesh_dim), 1);
 
   Queue q;
-  q.push(findFirst(from));
+  q.push(findFirst(from)); //TODO use geometric model info
 
-  // node and element number starts from 0
+  // node and element number starts from 0 - TODO should count down
   int labelnode = 0;
   int labelelem = 0;
 
@@ -887,12 +887,13 @@ Mesh2* createMdsMesh(gmi_model* model, Mesh* from, bool reorder, bool copy_data)
 
     std::vector<MeshEntity*> entities;
     apf::Adjacent edges;
-    from->getAdjacent(vtx,1, edges);
+    from->getAdjacent(vtx,1, edges); //edges adj to vtx
     for (size_t i = 0; i < edges.getSize(); ++i) 
     {
       edge = edges[i];
       apf::Adjacent adjacent;
-      from->getAdjacent(edge, mesh_dim, adjacent);      
+      //elms adj to edge
+      from->getAdjacent(edge, mesh_dim, adjacent);
       for (size_t j = 0; j < adjacent.getSize(); ++j) 
       {
         elem = adjacent[j];
@@ -902,7 +903,20 @@ Mesh2* createMdsMesh(gmi_model* model, Mesh* from, bool reorder, bool copy_data)
           apf::number(en, elem, 0, 0, labelelem);
           ++labelelem;
         }
+        //vertices adjacent to element
+        apf::Downward verts;
+        int n = from->getDownward(elem, 0, verts);
+        for(size_t k=0; k<n; k++) {
+          if (!visited(q,nn,verts[k]))
+            entities.push_back(verts[k]);
+        }
       }
+      //faces adj to edge
+      // - since we are not numbering mid-[edge|face|elm] nodes
+      //   then the vertices of elements bound by the current 
+      //   edge will be numbered in the previous loop and
+      //   the faces adjacent to edge loop is redundant
+      //other vertex of edge
       otherVtx = apf::getEdgeVertOppositeVert(from, edge, vtx);
       if (!visited(q, nn, otherVtx))
         entities.push_back(otherVtx);
